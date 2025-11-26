@@ -13,6 +13,12 @@ pipeline {
             steps {
                 echo '📥 Checking out code from GitHub...'
                 checkout scm
+                script {
+                    // Capture the email of the person who pushed/committed
+                    env.GIT_COMMITTER_EMAIL = sh(script: "git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
+                    env.GIT_COMMITTER_NAME = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    echo "Build triggered by: ${env.GIT_COMMITTER_NAME} <${env.GIT_COMMITTER_EMAIL}>"
+                }
             }
         }
         
@@ -113,6 +119,7 @@ pipeline {
                     <tr><td><b>Build Number</b></td><td>${BUILD_NUMBER}</td></tr>
                     <tr><td><b>Build URL</b></td><td><a href="${BUILD_URL}">${BUILD_URL}</a></td></tr>
                     <tr><td><b>Git Branch</b></td><td>${GIT_BRANCH}</td></tr>
+                    <tr><td><b>Triggered By</b></td><td>${GIT_COMMITTER_NAME} &lt;${GIT_COMMITTER_EMAIL}&gt;</td></tr>
                 </table>
                 <hr>
                 <h3>🧪 Selenium Test Results:</h3>
@@ -133,7 +140,7 @@ pipeline {
                 <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
                 <p><i>BlogApp Selenium Testing - Assignment Submission</i></p>
                 """,
-                to: 'khanomer679@gmail.com',
+                to: "khanomer679@gmail.com, ${GIT_COMMITTER_EMAIL}",
                 mimeType: 'text/html',
                 attachLog: true
             )
@@ -154,6 +161,7 @@ pipeline {
                     <tr><td><b>Build Number</b></td><td>${BUILD_NUMBER}</td></tr>
                     <tr><td><b>Build URL</b></td><td><a href="${BUILD_URL}">${BUILD_URL}</a></td></tr>
                     <tr><td><b>Git Branch</b></td><td>${GIT_BRANCH}</td></tr>
+                    <tr><td><b>Triggered By</b></td><td>${GIT_COMMITTER_NAME} &lt;${GIT_COMMITTER_EMAIL}&gt;</td></tr>
                 </table>
                 <hr>
                 <p>Please check the <a href="${BUILD_URL}console">console output</a> for details.</p>
@@ -161,7 +169,7 @@ pipeline {
                 <hr>
                 <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
                 """,
-                to: 'khanomer679@gmail.com',
+                to: "khanomer679@gmail.com, ${GIT_COMMITTER_EMAIL}",
                 mimeType: 'text/html',
                 attachLog: true
             )
