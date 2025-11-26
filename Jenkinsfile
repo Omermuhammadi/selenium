@@ -28,7 +28,7 @@ pipeline {
                 echo '🚀 Deploying application with Docker Compose...'
                 sh '''
                     docker-compose down --remove-orphans || true
-                    docker-compose up -d --build
+                    docker-compose up -d
                 '''
             }
         }
