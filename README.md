@@ -7,6 +7,7 @@ A simple blog application built with Node.js, Express, and PostgreSQL for demons
 - Create and read blog posts
 - Comment system
 - Session management
+- 
 - Responsive Bootstrap UI
 
 ## Technology Stack
