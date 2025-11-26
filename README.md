@@ -2,6 +2,8 @@
 
 A simple blog application built with Node.js, Express, and PostgreSQL for demonstrating automated Selenium testing with Jenkins CI/CD pipeline.
 
+**Last Updated:** November 26, 2025 - Testing auto-deployment and email notifications
+
 ## Features
 - User registration and authentication
 - Create and read blog posts
