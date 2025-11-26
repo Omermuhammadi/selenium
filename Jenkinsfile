@@ -6,8 +6,6 @@ pipeline {
         DOCKER_IMAGE = 'blogapp:latest'
         // Get the host IP for Selenium tests to access the app
         HOST_IP = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true).trim()
-        // Email recipients - includes repo owner and the person who triggered the build
-        EMAIL_RECIPIENTS = 'omermuhammadi03@gmail.com'
     }
     
     stages {
@@ -135,7 +133,7 @@ pipeline {
                 <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
                 <p><i>BlogApp Selenium Testing - Assignment Submission</i></p>
                 """,
-                to: "${EMAIL_RECIPIENTS}, \${GIT_AUTHOR_EMAIL}",
+                to: 'khanomer679@gmail.com',
                 mimeType: 'text/html',
                 attachLog: true
             )
@@ -163,7 +161,7 @@ pipeline {
                 <hr>
                 <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
                 """,
-                to: "${EMAIL_RECIPIENTS}, \${GIT_AUTHOR_EMAIL}",
+                to: 'khanomer679@gmail.com',
                 mimeType: 'text/html',
                 attachLog: true
             )
