@@ -4,6 +4,8 @@ pipeline {
     environment {
         APP_NAME = 'blogapp'
         DOCKER_IMAGE = 'blogapp:latest'
+        // Get the host IP for Selenium tests to access the app
+        HOST_IP = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true).trim()
     }
     
     stages {
@@ -23,44 +25,102 @@ pipeline {
         
         stage('Deploy Application') {
             steps {
-                echo '🚀 Deploying application...'
+                echo '🚀 Deploying application with Docker Compose...'
                 sh '''
-                    docker-compose down || true
-                    docker-compose up -d
+                    docker-compose down --remove-orphans || true
+                    docker-compose up -d --build
                 '''
             }
         }
         
         stage('Health Check') {
             steps {
-                echo '🏥 Waiting for application to start...'
+                echo '🏥 Waiting for application to be ready...'
                 sh '''
-                    sleep 15
-                    for i in 1 2 3 4 5; do
+                    echo "Waiting for containers to start..."
+                    sleep 20
+                    
+                    echo "Checking application health..."
+                    for i in 1 2 3 4 5 6; do
                         if curl -f -s http://localhost:3000/ > /dev/null; then
-                            echo "✅ Application is healthy"
+                            echo "✅ Application is healthy and ready!"
                             exit 0
                         fi
-                        echo "Attempt $i: Waiting..."
-                        sleep 5
+                        echo "Attempt $i: Application not ready yet, waiting..."
+                        sleep 10
                     done
-                    echo "❌ Health check failed"
+                    
+                    echo "❌ Application failed to start"
+                    docker-compose logs
                     exit 1
                 '''
             }
         }
         
-        // TODO: Add Selenium Test Stage (Part-II)
-        
+        stage('Run Selenium Tests') {
+            steps {
+                echo '🧪 Running Selenium Tests in Docker container...'
+                sh '''
+                    echo "========================================="
+                    echo "🧪 PART-II: Selenium Automated Tests"
+                    echo "========================================="
+                    echo "Using markhobson/maven-chrome Docker image"
+                    echo "Testing against: http://${HOST_IP}:3000"
+                    echo "========================================="
+                    
+                    # Run Selenium tests using markhobson/maven-chrome image
+                    # This image contains Chrome, ChromeDriver, Maven, and JDK
+                    docker run --rm \
+                        --network host \
+                        -v "${WORKSPACE}/selenium-tests:/app" \
+                        -w /app \
+                        markhobson/maven-chrome:jdk-11 \
+                        mvn clean test -DbaseUrl=http://${HOST_IP}:3000
+                    
+                    echo "========================================="
+                    echo "✅ Selenium Tests Completed!"
+                    echo "========================================="
+                '''
+            }
+            post {
+                always {
+                    // Archive test results
+                    junit allowEmptyResults: true, testResults: 'selenium-tests/target/surefire-reports/*.xml'
+                }
+            }
+        }
     }
     
     post {
         success {
-            echo '✅ Pipeline completed successfully!'
+            echo '''
+            =========================================
+            ✅ PIPELINE COMPLETED SUCCESSFULLY!
+            =========================================
+            ✓ Code checked out from GitHub
+            ✓ Docker image built
+            ✓ Application deployed
+            ✓ Health check passed
+            ✓ Selenium tests executed
+            =========================================
+            '''
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo '''
+            =========================================
+            ❌ PIPELINE FAILED!
+            =========================================
+            '''
             sh 'docker-compose logs || true'
+        }
+        always {
+            echo '🧹 Cleaning up...'
+            sh '''
+                # Keep containers running for demo purposes
+                # Uncomment below to stop after pipeline:
+                # docker-compose down || true
+                echo "Containers are still running at http://localhost:3000"
+            '''
         }
     }
 }
