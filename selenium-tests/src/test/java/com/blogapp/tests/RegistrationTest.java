@@ -14,10 +14,6 @@ import java.util.UUID;
  */
 public class RegistrationTest extends BaseTest {
 
-    private String generateUniqueUsername() {
-        return "testuser_" + UUID.randomUUID().toString().substring(0, 8);
-    }
-
     private String generateUniqueEmail() {
         return "test_" + UUID.randomUUID().toString().substring(0, 8) + "@example.com";
     }
@@ -34,11 +30,11 @@ public class RegistrationTest extends BaseTest {
         
         Assert.assertTrue(hasRegisterContent, "Registration page should load with register content");
         
-        // Check for registration form elements
-        boolean hasUsernameField = driver.findElements(By.name("username")).size() > 0 ||
-                                   driver.findElements(By.id("username")).size() > 0;
+        // Check for registration form elements (form uses 'name' field for Full Name)
+        boolean hasNameField = driver.findElements(By.name("name")).size() > 0 ||
+                               driver.findElements(By.id("name")).size() > 0;
         
-        Assert.assertTrue(hasUsernameField, "Username field should be present");
+        Assert.assertTrue(hasNameField, "Name field should be present");
         
         System.out.println("✅ Test 1 PASSED: Registration page loads correctly");
     }
@@ -48,9 +44,9 @@ public class RegistrationTest extends BaseTest {
         System.out.println("\n🧪 Test 2: Registration form has all required fields");
         navigateTo("/register");
         
-        // Check for username field
-        boolean hasUsername = driver.findElements(By.name("username")).size() > 0;
-        Assert.assertTrue(hasUsername, "Should have username field");
+        // Check for name field (Full Name)
+        boolean hasName = driver.findElements(By.name("name")).size() > 0;
+        Assert.assertTrue(hasName, "Should have name field");
         
         // Check for email field
         boolean hasEmail = driver.findElements(By.name("email")).size() > 0;
@@ -73,17 +69,17 @@ public class RegistrationTest extends BaseTest {
         System.out.println("\n🧪 Test 3: Successful user registration");
         navigateTo("/register");
         
-        String username = generateUniqueUsername();
+        String fullName = "Test User " + UUID.randomUUID().toString().substring(0, 4);
         String email = generateUniqueEmail();
         String password = "TestPass123!";
         
-        // Fill registration form
-        WebElement usernameField = driver.findElement(By.name("username"));
+        // Fill registration form (form uses 'name' for Full Name, not 'username')
+        WebElement nameField = driver.findElement(By.name("name"));
         WebElement emailField = driver.findElement(By.name("email"));
         WebElement passwordField = driver.findElement(By.name("password"));
         
-        usernameField.clear();
-        usernameField.sendKeys(username);
+        nameField.clear();
+        nameField.sendKeys(fullName);
         emailField.clear();
         emailField.sendKeys(email);
         passwordField.clear();
@@ -108,7 +104,7 @@ public class RegistrationTest extends BaseTest {
         
         Assert.assertTrue(registrationSuccess, "Should redirect after successful registration");
         
-        System.out.println("✅ Test 3 PASSED: User registered successfully - " + username);
+        System.out.println("✅ Test 3 PASSED: User registered successfully - " + fullName);
     }
 
     @Test(priority = 4)
