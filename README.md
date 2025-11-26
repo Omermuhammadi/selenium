@@ -93,4 +93,4 @@ mvn test -DbaseUrl=http://localhost:3000
 Omer Muhammadi
 
 ## License
-MIT
+MITT
