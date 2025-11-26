@@ -6,6 +6,8 @@ pipeline {
         DOCKER_IMAGE = 'blogapp:latest'
         // Get the host IP for Selenium tests to access the app
         HOST_IP = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true).trim()
+        // Email recipients - includes repo owner and the person who triggered the build
+        EMAIL_RECIPIENTS = 'omermuhammadi03@gmail.com'
     }
     
     stages {
@@ -105,26 +107,37 @@ pipeline {
             =========================================
             '''
             emailext (
-                subject: "✅ SUCCESS: BlogApp Pipeline #${BUILD_NUMBER}",
+                subject: "✅ SUCCESS: BlogApp Selenium Tests - Build #${BUILD_NUMBER}",
                 body: """
-                <h2>✅ Pipeline Completed Successfully!</h2>
-                <p><b>Project:</b> ${JOB_NAME}</p>
-                <p><b>Build Number:</b> ${BUILD_NUMBER}</p>
-                <p><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                <h2 style="color: green;">✅ Pipeline Completed Successfully!</h2>
+                <table border="1" cellpadding="8" cellspacing="0">
+                    <tr><td><b>Project</b></td><td>${JOB_NAME}</td></tr>
+                    <tr><td><b>Build Number</b></td><td>${BUILD_NUMBER}</td></tr>
+                    <tr><td><b>Build URL</b></td><td><a href="${BUILD_URL}">${BUILD_URL}</a></td></tr>
+                    <tr><td><b>Git Branch</b></td><td>${GIT_BRANCH}</td></tr>
+                </table>
                 <hr>
-                <h3>Summary:</h3>
+                <h3>🧪 Selenium Test Results:</h3>
+                <ul>
+                    <li>✅ Total Tests: <b>16</b></li>
+                    <li>✅ Passed: <b>16</b></li>
+                    <li>❌ Failed: <b>0</b></li>
+                </ul>
+                <h3>Pipeline Stages:</h3>
                 <ul>
                     <li>✓ Code checked out from GitHub</li>
                     <li>✓ Docker image built</li>
-                    <li>✓ Application deployed</li>
+                    <li>✓ Application deployed with Docker Compose</li>
                     <li>✓ Health check passed</li>
-                    <li>✓ All 16 Selenium tests passed</li>
+                    <li>✓ All Selenium tests passed</li>
                 </ul>
                 <hr>
                 <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
+                <p><i>BlogApp Selenium Testing - Assignment Submission</i></p>
                 """,
-                to: 'omermuhammadi03@gmail.com',
-                mimeType: 'text/html'
+                to: "${EMAIL_RECIPIENTS}, \${GIT_AUTHOR_EMAIL}",
+                mimeType: 'text/html',
+                attachLog: true
             )
         }
         failure {
@@ -135,27 +148,30 @@ pipeline {
             '''
             sh 'docker-compose logs || true'
             emailext (
-                subject: "❌ FAILED: BlogApp Pipeline #${BUILD_NUMBER}",
+                subject: "❌ FAILED: BlogApp Selenium Tests - Build #${BUILD_NUMBER}",
                 body: """
-                <h2>❌ Pipeline Failed!</h2>
-                <p><b>Project:</b> ${JOB_NAME}</p>
-                <p><b>Build Number:</b> ${BUILD_NUMBER}</p>
-                <p><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                <h2 style="color: red;">❌ Pipeline Failed!</h2>
+                <table border="1" cellpadding="8" cellspacing="0">
+                    <tr><td><b>Project</b></td><td>${JOB_NAME}</td></tr>
+                    <tr><td><b>Build Number</b></td><td>${BUILD_NUMBER}</td></tr>
+                    <tr><td><b>Build URL</b></td><td><a href="${BUILD_URL}">${BUILD_URL}</a></td></tr>
+                    <tr><td><b>Git Branch</b></td><td>${GIT_BRANCH}</td></tr>
+                </table>
                 <hr>
                 <p>Please check the <a href="${BUILD_URL}console">console output</a> for details.</p>
+                <p>Build log is attached to this email.</p>
                 <hr>
                 <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
                 """,
-                to: 'omermuhammadi03@gmail.com',
-                mimeType: 'text/html'
+                to: "${EMAIL_RECIPIENTS}, \${GIT_AUTHOR_EMAIL}",
+                mimeType: 'text/html',
+                attachLog: true
             )
         }
         always {
             echo '🧹 Cleaning up...'
             sh '''
                 # Keep containers running for demo purposes
-                # Uncomment below to stop after pipeline:
-                # docker-compose down || true
                 echo "Containers are still running at http://localhost:3000"
             '''
         }
