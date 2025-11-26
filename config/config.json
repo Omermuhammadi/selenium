@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "bloguser",
+    "password": "blogpass123",
+    "database": "blogapp",
+    "host": "localhost",
+    "dialect": "postgres",
+    "port": 5432
+  },
+  "test": {
+    "username": "bloguser",
+    "password": "blogpass123",
+    "database": "blogapp_test",
+    "host": "localhost",
+    "dialect": "postgres",
+    "port": 5432
+  },
+  "production": {
+    "username": "bloguser",
+    "password": "blogpass123",
+    "database": "blogapp",
+    "host": "db",
+    "dialect": "postgres",
+    "port": 5432
+  }
+}
