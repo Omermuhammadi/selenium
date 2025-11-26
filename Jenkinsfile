@@ -104,6 +104,28 @@ pipeline {
             ✓ Selenium tests executed
             =========================================
             '''
+            emailext (
+                subject: "✅ SUCCESS: BlogApp Pipeline #${BUILD_NUMBER}",
+                body: """
+                <h2>✅ Pipeline Completed Successfully!</h2>
+                <p><b>Project:</b> ${JOB_NAME}</p>
+                <p><b>Build Number:</b> ${BUILD_NUMBER}</p>
+                <p><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                <hr>
+                <h3>Summary:</h3>
+                <ul>
+                    <li>✓ Code checked out from GitHub</li>
+                    <li>✓ Docker image built</li>
+                    <li>✓ Application deployed</li>
+                    <li>✓ Health check passed</li>
+                    <li>✓ All 16 Selenium tests passed</li>
+                </ul>
+                <hr>
+                <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
+                """,
+                to: 'omermuhammadi03@gmail.com',
+                mimeType: 'text/html'
+            )
         }
         failure {
             echo '''
@@ -112,6 +134,21 @@ pipeline {
             =========================================
             '''
             sh 'docker-compose logs || true'
+            emailext (
+                subject: "❌ FAILED: BlogApp Pipeline #${BUILD_NUMBER}",
+                body: """
+                <h2>❌ Pipeline Failed!</h2>
+                <p><b>Project:</b> ${JOB_NAME}</p>
+                <p><b>Build Number:</b> ${BUILD_NUMBER}</p>
+                <p><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                <hr>
+                <p>Please check the <a href="${BUILD_URL}console">console output</a> for details.</p>
+                <hr>
+                <p><i>This is an automated email from Jenkins CI/CD Pipeline</i></p>
+                """,
+                to: 'omermuhammadi03@gmail.com',
+                mimeType: 'text/html'
+            )
         }
         always {
             echo '🧹 Cleaning up...'
