@@ -13,6 +13,7 @@ A simple blog application built with Node.js, Express, and PostgreSQL for demons
 - 
 - Responsive Bootstrap UI
 
+
 ## Technology Stack
 - **Backend**: Node.js, Express.js
 - **Database**: PostgreSQL
